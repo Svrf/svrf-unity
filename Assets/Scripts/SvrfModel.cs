@@ -1,22 +1,35 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using Assets.Scripts.Models;
+using Assets.Scripts.Utilities;
+using Svrf.Models.Media;
+using System.Threading.Tasks;
 using UnityEngine;
-using UnityGLTF;
+using UnitySvrf;
 
 public class SvrfModel : MonoBehaviour
 {
     public string Id;
+    public bool WithOccluder;
+    public Shader OverrideShader;
+
+    private Shader _shader;
+    private static SvrfApi _svrfApi = new SvrfApi();
 
     public async void Start()
     {
-        gameObject.transform.SetParent(gameObject.transform);
+        var model = (await _svrfApi.Media.GetByIdAsync(Id)).Media;
+        var options = new SvrfModelOptions
+        {
+            OverrideShader = OverrideShader,
+            WithOccluder = WithOccluder
+        };
 
-        // make API request
-        // var request = await api.GetById(Id);
+        await SvrfModelUtility.AddSvrfModel(gameObject, model, options);
+    }
 
-        var gltfComponent = gameObject.AddComponent<GLTFComponent>();
-        gltfComponent.GLTFUri = "https://www.svrf.com/storage/svrf-models/730861/gltf/StarGlassesBlender2.gltf"; // request.uri
-
-        await gltfComponent.Load();
+    public static async Task<GameObject> GetSvrfGameObject(MediaModel model, SvrfModelOptions options)
+    {
+        var svrfGameObject = new GameObject();
+        await SvrfModelUtility.AddSvrfModel(svrfGameObject, model, options);
+        return svrfGameObject;
     }
 }
