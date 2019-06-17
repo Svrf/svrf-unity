@@ -3,33 +3,45 @@ using Assets.Scripts.Utilities;
 using Svrf.Models.Media;
 using System.Threading.Tasks;
 using UnityEngine;
-using UnitySvrf;
 
-public class SvrfModel : MonoBehaviour
+namespace Assets.Scripts
 {
-    public string Id;
-    public bool WithOccluder;
-    public Shader OverrideShader;
-
-    private Shader _shader;
-    private static SvrfApi _svrfApi = new SvrfApi();
-
-    public async void Start()
+    public class SvrfModel : MonoBehaviour
     {
-        var model = (await _svrfApi.Media.GetByIdAsync(Id)).Media;
-        var options = new SvrfModelOptions
+        public string Id;
+        public bool WithOccluder = true;
+
+        public Shader OverrideShader;
+
+        private static SvrfApi _svrf;
+
+        public async void Start()
         {
-            OverrideShader = OverrideShader,
-            WithOccluder = WithOccluder
-        };
+            CreateSvrfInstance();
 
-        await SvrfModelUtility.AddSvrfModel(gameObject, model, options);
-    }
+            var model = (await _svrf.Media.GetByIdAsync(Id)).Media;
+            var options = new SvrfModelOptions
+            {
+                OverrideShader = OverrideShader,
+                WithOccluder = WithOccluder
+            };
 
-    public static async Task<GameObject> GetSvrfGameObject(MediaModel model, SvrfModelOptions options)
-    {
-        var svrfGameObject = new GameObject();
-        await SvrfModelUtility.AddSvrfModel(svrfGameObject, model, options);
-        return svrfGameObject;
+            await SvrfModelUtility.AddSvrfModel(gameObject, model, options);
+        }
+
+        public static async Task<GameObject> GetSvrfGameObject(MediaModel model, SvrfModelOptions options)
+        {
+            var svrfGameObject = new GameObject();
+            await SvrfModelUtility.AddSvrfModel(svrfGameObject, model, options);
+            return svrfGameObject;
+        }
+
+        private void CreateSvrfInstance()
+        {
+            if (_svrf == null)
+            {
+                _svrf = new SvrfApi();
+            }
+        }
     }
 }

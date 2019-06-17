@@ -1,22 +1,19 @@
 ﻿using UnityEngine;
 using System;
 
-[Serializable]
-public sealed class SvrfApiKey : MonoBehaviour
+namespace Assets.Scripts
 {
-    [SerializeField]
-    private string _apiKey;
-
-    public static string ApiKey { get; set; }
-
-    void Start()
+    [Serializable]
+    public sealed class SvrfApiKey : MonoBehaviour
     {
-        if (!Application.isEditor)
-            ApiKey = "";
-    }
+        [SerializeField]
+        private string _apiKey;
 
-    void OnValidate()
-    {
-        ApiKey = _apiKey;
+        public static string ApiKey { get; set; }
+
+        public void Awake()
+        {
+            ApiKey = _apiKey;
+        }
     }
 }
