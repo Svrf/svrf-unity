@@ -12,14 +12,11 @@ namespace Assets.Scripts.Utilities
         internal static async Task AddSvrfModel(GameObject gameObject, MediaModel model, SvrfModelOptions options)
         {
             var gltfComponent = gameObject.AddComponent<GLTFComponent>();
+            SetGltfComponentField(gltfComponent, "loadOnStart", false);
             gltfComponent.GLTFUri = model.GetMainGltfFile();
 
             var shader = options.ShaderOverride == null ? Shader.Find("Standard") : options.ShaderOverride;
-
-            var gltfShaderField = gltfComponent
-                .GetType()
-                .GetField("shaderOverride", BindingFlags.NonPublic | BindingFlags.Instance);
-            gltfShaderField.SetValue(gltfComponent, shader);
+            SetGltfComponentField(gltfComponent, "shaderOverride", shader);
 
             await gltfComponent.Load();
 
@@ -43,6 +40,12 @@ namespace Assets.Scripts.Utilities
             {
                 occluder.gameObject.SetActive(false);
             }
+        }
+
+        internal static void SetGltfComponentField(GLTFComponent component, string name, object value)
+        {
+            var field = typeof(GLTFComponent).GetField(name, BindingFlags.NonPublic | BindingFlags.Instance);
+            field.SetValue(component, value);
         }
     }
 }
