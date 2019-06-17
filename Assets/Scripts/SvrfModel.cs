@@ -11,7 +11,7 @@ namespace Assets.Scripts
         public string Id;
         public bool WithOccluder = true;
 
-        public Shader OverrideShader;
+        public Shader ShaderOverride;
 
         private static SvrfApi _svrf;
 
@@ -22,16 +22,17 @@ namespace Assets.Scripts
             var model = (await _svrf.Media.GetByIdAsync(Id)).Media;
             var options = new SvrfModelOptions
             {
-                OverrideShader = OverrideShader,
+                ShaderOverride = ShaderOverride,
                 WithOccluder = WithOccluder
             };
 
             await SvrfModelUtility.AddSvrfModel(gameObject, model, options);
         }
 
-        public static async Task<GameObject> GetSvrfGameObject(MediaModel model, SvrfModelOptions options)
+        public static async Task<GameObject> GetSvrfModel(MediaModel model, SvrfModelOptions options, GameObject gameObject = null)
         {
-            var svrfGameObject = new GameObject();
+            var svrfGameObject = gameObject == null ? new GameObject() : gameObject;
+
             await SvrfModelUtility.AddSvrfModel(svrfGameObject, model, options);
             return svrfGameObject;
         }

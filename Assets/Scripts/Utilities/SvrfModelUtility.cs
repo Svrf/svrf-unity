@@ -7,22 +7,27 @@ using UnityGLTF;
 
 namespace Assets.Scripts.Utilities
 {
-    public static class SvrfModelUtility
+    internal static class SvrfModelUtility
     {
-        public static async Task AddSvrfModel(GameObject gameObject, MediaModel model, SvrfModelOptions options)
+        internal static async Task AddSvrfModel(GameObject gameObject, MediaModel model, SvrfModelOptions options)
         {
             var gltfComponent = gameObject.AddComponent<GLTFComponent>();
-
             gltfComponent.GLTFUri = model.GetMainGltfFile();
 
-            var gltfShader = gltfComponent.GetType().GetField("shaderOverride", BindingFlags.NonPublic | BindingFlags.Instance);
+            var shader = options.ShaderOverride == null ? Shader.Find("Standard") : options.ShaderOverride;
 
-            var shader = options.OverrideShader ?? Shader.Find("Custom/FaceFilterShader");
-            gltfShader.SetValue(gltfComponent, shader);
+            var gltfShaderField = gltfComponent
+                .GetType()
+                .GetField("shaderOverride", BindingFlags.NonPublic | BindingFlags.Instance);
+            gltfShaderField.SetValue(gltfComponent, shader);
 
             await gltfComponent.Load();
 
-            var occluder = gltfComponent.gameObject.transform.GetChild(0).GetChild(0).Find("Occluder");
+            var gltfRoot = gameObject.transform.Find("Root Scene");
+            var rootNode = gltfRoot.Find("RootNode");
+            var occluder = rootNode.Find("Occluder");
+
+            gltfRoot.transform.Rotate(Vector3.up, 180);
 
             if (occluder == null)
             {
