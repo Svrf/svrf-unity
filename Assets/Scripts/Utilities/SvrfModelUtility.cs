@@ -2,6 +2,7 @@
 using Svrf.Models.Media;
 using System.Reflection;
 using System.Threading.Tasks;
+using UnityEditor;
 using UnityEngine;
 using UnityGLTF;
 
@@ -40,7 +41,7 @@ namespace Assets.Scripts.Utilities
             {
                 var meshRenderer = occluder.transform.Find("Primitive").GetComponent<SkinnedMeshRenderer>();
                 // If we need to handle occlusion, apply our custom shader to handle it.
-                meshRenderer.sharedMaterials[0].shader = Shader.Find("Custom/OccluderShader");
+                meshRenderer.sharedMaterials[0].shader = Shader.Find("Svrf/OccluderShader");
             }
             else
             {
