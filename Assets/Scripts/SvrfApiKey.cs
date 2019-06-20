@@ -9,11 +9,11 @@ namespace Assets.Scripts
         [SerializeField]
         private string _apiKey;
 
-        public static string ApiKey { get; set; }
+        public static string Value { get; set; }
 
         public void Awake()
         {
-            ApiKey = _apiKey;
+            Value = _apiKey;
         }
     }
 }

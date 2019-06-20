@@ -11,7 +11,7 @@ namespace Assets.Examples.SetApiKeyInCode
 
         async void Start()
         {
-            SvrfApiKey.ApiKey = "your key";
+            SvrfApiKey.Value = "your key";
 
             _svrfApi = new SvrfApi();
 
