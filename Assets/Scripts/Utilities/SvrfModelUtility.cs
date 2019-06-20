@@ -18,9 +18,7 @@ namespace Assets.Scripts.Utilities
             SetGltfComponentField(gltfComponent, "loadOnStart", false);
             gltfComponent.GLTFUri = model.GetMainGltfFile();
 
-            // Use the Unity Standard shader if no override is provided.
-            var shader = options.ShaderOverride == null ? Shader.Find("Standard") : options.ShaderOverride;
-            SetGltfComponentField(gltfComponent, "shaderOverride", shader);
+            SetGltfComponentField(gltfComponent, "shaderOverride", options.ShaderOverride);
 
             await gltfComponent.Load();
 
