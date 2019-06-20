@@ -41,7 +41,7 @@ namespace Assets.Scripts.Utilities
             {
                 var meshRenderer = occluder.transform.Find("Primitive").GetComponent<SkinnedMeshRenderer>();
                 // If we need to handle occlusion, apply our custom shader to handle it.
-                meshRenderer.sharedMaterials[0].shader = Shader.Find("Svrf/OccluderShader");
+                meshRenderer.sharedMaterials[0].shader = Shader.Find("Svrf/Occluder");
             }
             else
             {
