@@ -1,10 +1,10 @@
-﻿using Assets.Scripts.Models;
-using Assets.Scripts.Utilities;
-using Svrf.Models.Media;
+﻿using Svrf.Models.Media;
 using System.Threading.Tasks;
+using Svrf.Unity.Models;
+using Svrf.Unity.Utilities;
 using UnityEngine;
 
-namespace Assets.Scripts
+namespace Svrf.Unity
 {
     public class SvrfModel : MonoBehaviour
     {

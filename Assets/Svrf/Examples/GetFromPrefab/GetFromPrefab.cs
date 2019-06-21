@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Assets.Examples.GetFromPrefab
+namespace Svrf.Unity.Examples
 {
     public class GetFromPrefab : MonoBehaviour
     {

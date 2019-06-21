@@ -1,12 +1,11 @@
-﻿using Assets.Scripts.Models;
-using Svrf.Models.Media;
+﻿using Svrf.Models.Media;
 using System.Reflection;
 using System.Threading.Tasks;
-using UnityEditor;
+using Svrf.Unity.Models;
 using UnityEngine;
 using UnityGLTF;
 
-namespace Assets.Scripts.Utilities
+namespace Svrf.Unity.Utilities
 {
     internal static class SvrfModelUtility
     {

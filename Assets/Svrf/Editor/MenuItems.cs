@@ -1,8 +1,7 @@
-﻿using Assets.Scripts;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 
-namespace Assets.Editor
+namespace Svrf.Unity.Editor
 {
     /// <summary>
     /// Enables creation of our custom game objects in the right-click context menu.

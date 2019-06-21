@@ -1,6 +1,4 @@
-﻿using Svrf;
-
-namespace Assets.Scripts
+﻿namespace Svrf.Unity
 {
     public class SvrfApi : SvrfClient
     {

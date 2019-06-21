@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Assets.Scripts.Models
+namespace Svrf.Unity.Models
 {
     public class SvrfModelOptions
     {

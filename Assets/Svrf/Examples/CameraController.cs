@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Assets.Examples
+namespace Svrf.Unity.Examples
 {
     public class CameraController : MonoBehaviour
     {

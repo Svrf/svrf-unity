@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System;
 
-namespace Assets.Scripts
+namespace Svrf.Unity
 {
     [Serializable]
     public sealed class SvrfApiKey : MonoBehaviour

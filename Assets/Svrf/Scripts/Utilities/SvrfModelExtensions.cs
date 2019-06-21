@@ -1,7 +1,7 @@
 ﻿using Svrf.Models.Media;
 using System.Linq;
 
-namespace Assets.Scripts.Utilities
+namespace Svrf.Unity.Utilities
 {
     internal static class SvrfModelExtensions
     {

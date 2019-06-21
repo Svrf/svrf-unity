@@ -1,9 +1,8 @@
 ﻿using System.Linq;
-using Assets.Scripts;
 using Svrf.Models.Http;
 using UnityEngine;
 
-namespace Assets.Examples.SetApiKeyInCode
+namespace Svrf.Unity.Examples
 {
     public class SetApiKeyInCode : MonoBehaviour
     {
