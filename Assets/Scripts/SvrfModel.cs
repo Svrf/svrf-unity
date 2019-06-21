@@ -8,7 +8,7 @@ namespace Assets.Scripts
 {
     public class SvrfModel : MonoBehaviour
     {
-        public string Id;
+        public string SvrfModelId;
 
         public bool WithOccluder = DefaultOptions.WithOccluder;
         public Shader ShaderOverride = DefaultOptions.ShaderOverride;
@@ -24,7 +24,7 @@ namespace Assets.Scripts
         {
             CreateSvrfInstance();
 
-            var model = (await _svrf.Media.GetByIdAsync(Id)).Media;
+            var model = (await _svrf.Media.GetByIdAsync(SvrfModelId)).Media;
             var options = new SvrfModelOptions
             {
                 ShaderOverride = ShaderOverride,
