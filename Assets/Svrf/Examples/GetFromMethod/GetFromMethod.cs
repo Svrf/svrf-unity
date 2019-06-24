@@ -10,11 +10,11 @@ namespace Svrf.Unity.Examples
         {
             var api = new SvrfApi();
 
-            var trendingResponse = await api.Media.GetTrendingAsync(new MediaRequestParams { IsFaceFilter = true });
+            var options = new MediaRequestParams {IsFaceFilter = true};
+            var trendingResponse = await api.Media.GetTrendingAsync(options);
             var model = trendingResponse.Media.First();
 
-            var svrfModel = await SvrfModel.GetSvrfModel(model);
-            svrfModel.transform.SetParent(transform);
+            await SvrfModel.GetSvrfModel(model);
         }
     }
 }
