@@ -14,7 +14,7 @@ namespace Svrf.Unity
         public Shader ShaderOverride = DefaultOptions.ShaderOverride;
 
         private static SvrfApi _svrf;
-        private static readonly SvrfModelOptions DefaultOptions = new SvrfModelOptions()
+        private static readonly SvrfModelOptions DefaultOptions = new SvrfModelOptions
         {
             ShaderOverride = null,
             WithOccluder = true,
