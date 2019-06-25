@@ -34,7 +34,7 @@ namespace Svrf.Unity
             await SvrfModelUtility.AddSvrfModel(gameObject, model, options);
         }
 
-        public static async Task<GameObject> GetSvrfModel(MediaModel model, SvrfModelOptions options = null, GameObject gameObject = null)
+        public static async Task<GameObject> GetSvrfModelAsync(MediaModel model, SvrfModelOptions options = null, GameObject gameObject = null)
         {
             // It's impossible to use null coalescing operator with Unity objects.
             gameObject = gameObject == null ? new GameObject("SvrfModel") : gameObject;

@@ -14,7 +14,7 @@ namespace Svrf.Unity.Examples
             var trendingResponse = await api.Media.GetTrendingAsync(options);
             var model = trendingResponse.Media.First();
 
-            await SvrfModel.GetSvrfModel(model);
+            await SvrfModel.GetSvrfModelAsync(model);
         }
     }
 }
