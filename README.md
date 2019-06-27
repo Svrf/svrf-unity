@@ -1,7 +1,5 @@
 # Svrf Unity plugin
 
-# Svrf C# SDK
-
 Svrf's API allows you to supercharge your project or app with the first and largest search engine for immersive experiences. We make it simple for any developer to incorporate highly immersive experiences with all kinds of applications: virtual reality, augmented reality, mixed reality, mobile, and web. See our [Unity Quick Start Guide][] to get started!
 
 ## Features
