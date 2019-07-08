@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using Svrf.Models.Http;
+using Svrf.Models.Media;
 using UnityEngine;
 
 namespace Svrf.Unity.Examples
@@ -8,13 +9,15 @@ namespace Svrf.Unity.Examples
     {
         async void Start()
         {
-            var api = new SvrfApi();
+            SvrfApi api = new SvrfApi();
 
-            var options = new MediaRequestParams {IsFaceFilter = true};
-            var trendingResponse = await api.Media.GetTrendingAsync(options);
-            var model = trendingResponse.Media.First();
+            MediaRequestParams options = new MediaRequestParams {IsFaceFilter = true};
+            MultipleMediaResponse trendingResponse = await api.Media.GetTrendingAsync(options);
+            MediaModel model = trendingResponse.Media.First();
 
             await SvrfModel.GetSvrfModelAsync(model);
+
+            Destroy(GameObject.Find("Loading"));
         }
     }
 }

@@ -8,6 +8,8 @@ namespace Svrf.Unity
 {
     public class SvrfModel : MonoBehaviour
     {
+        public static bool IsLoading = true;
+
         public string SvrfModelId;
 
         public bool WithOccluder = DefaultOptions.WithOccluder;
@@ -22,6 +24,7 @@ namespace Svrf.Unity
 
         public async void Start()
         {
+            IsLoading = true;
             CreateSvrfInstance();
 
             var model = (await _svrf.Media.GetByIdAsync(SvrfModelId)).Media;
@@ -32,15 +35,22 @@ namespace Svrf.Unity
             };
 
             await SvrfModelUtility.AddSvrfModel(gameObject, model, options);
+
+            IsLoading = false;
         }
 
         public static async Task<GameObject> GetSvrfModelAsync(MediaModel model, SvrfModelOptions options = null, GameObject gameObject = null)
         {
+            IsLoading = true;
+
             // It's impossible to use null coalescing operator with Unity objects.
             gameObject = gameObject == null ? new GameObject("SvrfModel") : gameObject;
             options = options ?? DefaultOptions;
 
             await SvrfModelUtility.AddSvrfModel(gameObject, model, options);
+
+            IsLoading = false;
+
             return gameObject;
         }
 

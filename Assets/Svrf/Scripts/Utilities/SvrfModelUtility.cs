@@ -50,7 +50,11 @@ namespace Svrf.Unity.Utilities
         internal static void SetGltfComponentField(GLTFComponent component, string name, object value)
         {
             var field = typeof(GLTFComponent).GetField(name, BindingFlags.NonPublic | BindingFlags.Instance);
-            field.SetValue(component, value);
+
+            if (field != null)
+            {
+                field.SetValue(component, value);
+            }
         }
     }
 }
