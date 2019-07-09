@@ -24,7 +24,6 @@ namespace Svrf.Unity
 
         public async void Start()
         {
-            IsLoading = true;
             CreateSvrfInstance();
 
             var model = (await _svrf.Media.GetByIdAsync(SvrfModelId)).Media;
