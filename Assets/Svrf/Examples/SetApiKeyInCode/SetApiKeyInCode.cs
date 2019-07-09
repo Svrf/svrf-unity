@@ -20,7 +20,8 @@ namespace Svrf.Unity.Examples
             MediaModel model = trendingResponse.Media.First();
 
             GameObject svrfModel = await SvrfModel.GetSvrfModelAsync(model);
-            svrfModel.transform.SetParent(transform);
+
+            Destroy(GameObject.Find("Loading"));
         }
     }
 }
