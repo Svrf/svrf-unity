@@ -1,17 +1,19 @@
-﻿using Svrf.Unity;
-using UnityEngine;
+﻿using UnityEngine;
 
-public class LoadingController : MonoBehaviour
+namespace Svrf.Unity.Examples
 {
-    public GameObject TrackedSvrfModel;
-
-    void Update()
+    public class LoadingController : MonoBehaviour
     {
-        SvrfModel svrfModel = TrackedSvrfModel.GetComponent<SvrfModel>();
+        public GameObject TrackedSvrfModel;
 
-        if (!svrfModel.IsLoading)
+        void Update()
         {
-            Destroy(gameObject);
+            SvrfModel svrfModel = TrackedSvrfModel.GetComponent<SvrfModel>();
+
+            if (!svrfModel.IsLoading)
+            {
+                Destroy(gameObject);
+            }
         }
     }
 }
