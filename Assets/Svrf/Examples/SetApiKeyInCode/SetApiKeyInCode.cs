@@ -7,16 +7,14 @@ namespace Svrf.Unity.Examples
 {
     public class SetApiKeyInCode : MonoBehaviour
     {
-        private static SvrfApi _svrfApi;
-
         async void Start()
         {
             SvrfApiKey.Value = "your key";
 
-            _svrfApi = new SvrfApi();
+            SvrfApi api = new SvrfApi();
 
             MediaRequestParams options = new MediaRequestParams {IsFaceFilter = true};
-            MultipleMediaResponse trendingResponse = await _svrfApi.Media.GetTrendingAsync(options);
+            MultipleMediaResponse trendingResponse = await api.Media.GetTrendingAsync(options);
             MediaModel model = trendingResponse.Media.First();
 
             GameObject svrfModel = await SvrfModel.GetSvrfModelAsync(model);
