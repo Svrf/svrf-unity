@@ -21,9 +21,8 @@ namespace Svrf.Unity.Utilities
 
             await gltfComponent.Load();
 
-            var gltfRoot = gameObject.transform.Find("Root Scene");
-            var rootNode = gltfRoot.Find("RootNode");
-            var occluder = rootNode.Find("Occluder");
+            var gltfRoot = gameObject.transform.GetChild(0);
+            var occluder = FindDescendant(gltfRoot, "Occluder");
 
             // GLTF models are right-handed, but the Unity coordinates are left-handed,
             // so rotating the model around Y axis.
@@ -47,7 +46,7 @@ namespace Svrf.Unity.Utilities
             }
         }
 
-        internal static void SetGltfComponentField(GLTFComponent component, string name, object value)
+        private static void SetGltfComponentField(GLTFComponent component, string name, object value)
         {
             var field = typeof(GLTFComponent).GetField(name, BindingFlags.NonPublic | BindingFlags.Instance);
 
@@ -55,6 +54,19 @@ namespace Svrf.Unity.Utilities
             {
                 field.SetValue(component, value);
             }
+        }
+
+        private static Transform FindDescendant(Transform transform, string name)
+        {
+            foreach (Transform child in transform)
+            {
+                if (child.name == name) return child;
+
+                var result = FindDescendant(child, name);
+                if (result != null) return result;
+            }
+
+            return null;
         }
     }
 }
