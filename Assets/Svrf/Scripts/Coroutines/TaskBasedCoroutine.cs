@@ -3,15 +3,15 @@ using UnityEngine;
 
 namespace Svrf.Unity.Coroutines
 {
-    public class WaitFor : CustomYieldInstruction
+    public class TaskBasedCoroutine : CustomYieldInstruction
     {
         public override bool keepWaiting => !IsCompleted;
 
         protected bool IsCompleted;
 
-        internal WaitFor(Task task)
+        internal TaskBasedCoroutine(Task task)
         {
-            task.ContinueWith(t => IsCompleted = t.IsCompleted);
+            task.ContinueWith(t => { IsCompleted = t.IsCompleted; });
         }
     }
 }
