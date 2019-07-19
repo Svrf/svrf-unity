@@ -1,7 +1,14 @@
-﻿namespace Svrf.Unity
+﻿using Svrf.Unity.Coroutines;
+
+namespace Svrf.Unity
 {
     public class SvrfApi : SvrfClient
     {
-        public SvrfApi() : base(SvrfApiKey.Value) { }
+        public MediaApiForCoroutine MediaForCoroutine { get; }
+
+        public SvrfApi() : base(SvrfApiKey.Value)
+        {
+            MediaForCoroutine = new MediaApiForCoroutine(Media);
+        }
     }
 }

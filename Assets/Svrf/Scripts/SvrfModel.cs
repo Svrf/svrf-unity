@@ -1,5 +1,6 @@
 ﻿using Svrf.Models.Media;
 using System.Threading.Tasks;
+using Svrf.Unity.Coroutines;
 using Svrf.Unity.Models;
 using Svrf.Unity.Utilities;
 using UnityEngine;
@@ -47,6 +48,11 @@ namespace Svrf.Unity
             await SvrfModelUtility.AddSvrfModel(gameObject, model, options);
 
             return gameObject;
+        }
+
+        public static WaitFor<GameObject> GetSvrfModelYieldInstruction(MediaModel model, SvrfModelOptions options = null, GameObject gameObject = null)
+        {
+            return new WaitFor<GameObject>(GetSvrfModelAsync(model, options, gameObject));
         }
 
         private static void CreateSvrfInstance()
