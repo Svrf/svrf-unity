@@ -20,6 +20,7 @@ namespace Svrf.Unity.Editor
         public static bool IsFaceFilter = true;
 
         private Texture _refreshIcon;
+        private bool _isApiKeyEmpty;
 
         [MenuItem("Window/Svrf")]
         public static void ShowWindow()
@@ -27,7 +28,7 @@ namespace Svrf.Unity.Editor
             GetWindow<SvrfWindow>("Svrf");
         }
 
-        private void OnDestroy()
+        public void OnDestroy()
         {
             SvrfModelEditor.SelectedSvrfModel = null;
         }
@@ -48,12 +49,14 @@ namespace Svrf.Unity.Editor
 
         private void OnGUI()
         {
+            _isApiKeyEmpty = string.IsNullOrEmpty(SvrfApiKey.Value);
+
             if (_textureLoader == null)
             {
                 CreateTextureLoaderInstance();
                 _textureLoader?.LoadMoreModels();
             }
-            
+
             GUILayout.BeginArea(new Rect(Padding, Padding, position.width - 2 * Padding, position.height - 2 * Padding));
 
             if (Application.isPlaying)
@@ -67,6 +70,13 @@ namespace Svrf.Unity.Editor
             }
 
             DrawSearchArea();
+
+            if (_isApiKeyEmpty)
+            {
+                GUILayout.EndArea();
+                return;
+            }
+
             DrawCellGrid();
 
             GUILayout.EndArea();
@@ -78,6 +88,13 @@ namespace Svrf.Unity.Editor
             GUILayout.Space(Padding);
 
             DrawWindowLabel();
+
+            if (_isApiKeyEmpty)
+            {
+                GUILayout.Space(Padding);
+                GUILayout.EndVertical();
+                return;
+            }
 
             IsFaceFilter = GUILayout.Toggle(IsFaceFilter, "Is Face Filter", GUILayout.Width(140));
             
@@ -183,17 +200,22 @@ namespace Svrf.Unity.Editor
         private void DrawWindowLabel()
         {
             GUILayout.BeginHorizontal();
-            GUILayout.Label("You can find any model in Svrf", EditorStyles.boldLabel);
-            GUILayout.FlexibleSpace();
 
-            if (string.IsNullOrEmpty(SvrfApiKey.Value))
+            if (_isApiKeyEmpty)
             {
-                var isCreateApiKeyObjectClicked = GUILayout.Button("Create Api Key Game Object", GUILayout.Height(30));
+                GUILayout.Label("Please set api key in the Svrf Api Key game object", EditorStyles.boldLabel);
+                GUILayout.FlexibleSpace();
+                var isCreateApiKeyObjectClicked = GUILayout.Button("Create Api Key game object", GUILayout.Height(30));
 
                 if (isCreateApiKeyObjectClicked)
                 {
                     SvrfObjectsFactory.CreateSvrfApiKey();
                 }
+            }
+            else
+            {
+                GUILayout.Label("Discover Svrf face filter and 3D models", EditorStyles.boldLabel);
+                GUILayout.FlexibleSpace();
             }
 
             var isRefreshClicked = GUILayout.Button(_refreshIcon, GUILayout.Width(30), GUILayout.Height(30));
@@ -206,7 +228,7 @@ namespace Svrf.Unity.Editor
             }
         }
 
-        private static void DrawNoResultMessage()
+        private void DrawNoResultMessage()
         {
             GUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
@@ -223,7 +245,12 @@ namespace Svrf.Unity.Editor
             GUILayout.FlexibleSpace();
 
             var isLoadMoreClicked = false;
-            if (!_textureLoader.AreAllModelsLoaded)
+
+            if (_textureLoader.IsLoading)
+            {
+                GUILayout.Label("Loading...");
+            }
+            else if (!_textureLoader.AreAllModelsLoaded)
             {
                 isLoadMoreClicked = GUILayout.Button("Load more");
             }
@@ -245,7 +272,7 @@ namespace Svrf.Unity.Editor
             return Mathf.Clamp(flooredToIntWidth / (CellSpacing + CellWidth), 1, int.MaxValue);
         }
 
-        private static void InsertSelectedModel(SvrfPreview clickedModel)
+        private void InsertSelectedModel(SvrfPreview clickedModel)
         {
             if (SvrfModelEditor.SelectedSvrfModel != null)
             {

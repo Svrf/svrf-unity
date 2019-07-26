@@ -22,6 +22,7 @@ namespace Svrf.Unity.Editor
 
         public bool AreAllModelsLoaded;
         public bool IsNoResult;
+        public bool IsLoading;
 
         private readonly SvrfApi _api;
 
@@ -37,12 +38,15 @@ namespace Svrf.Unity.Editor
 
         public async Task FetchMediaModels(string searchString = null)
         {
+            IsLoading = true;
+            OnTextureLoaded();
+
             var options = new MediaRequestParams
             {
                 PageNum = _pageNum,
                 Size = Size,
                 Type = new[] { MediaType.Model3D },
-                IsFaceFilter = SvrfWindow.IsFaceFilter,
+                IsFaceFilter = SvrfWindow.IsFaceFilter ? SvrfWindow.IsFaceFilter : (bool?) null,
             };
 
             var multipleResponse = string.IsNullOrEmpty(searchString) ?
@@ -53,14 +57,23 @@ namespace Svrf.Unity.Editor
 
             var media = multipleResponse.Media.ToList();
 
-            AreAllModelsLoaded = media.Count < Size;
-
-            IsNoResult = media.Count == 0;
+            OnFinishLoading(media.Count);
 
             foreach (var model in media)
             {
                 LoadThumbnailImage(model);
             }
+        }
+
+        private void OnFinishLoading(int mediaCount)
+        {
+            AreAllModelsLoaded = mediaCount < Size;
+
+            IsNoResult = mediaCount == 0;
+
+            IsLoading = false;
+
+            OnTextureLoaded();
         }
 
         public void LoadMoreModels()

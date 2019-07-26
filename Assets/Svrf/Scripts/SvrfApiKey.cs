@@ -12,7 +12,21 @@ namespace Svrf.Unity
 
         public static string Value { get; set; }
 
-        public void Update()
+        public void Awake()
+        {
+            UpdateValue();
+        }
+        public void OnEnable()
+        {
+            UpdateValue();
+        }
+
+        public void OnValidate()
+        {
+            UpdateValue();
+        }
+
+        private void UpdateValue()
         {
             Value = _apiKey;
         }
