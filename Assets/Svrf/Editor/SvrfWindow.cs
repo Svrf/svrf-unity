@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using Svrf.Editor;
+using UnityEditor;
 using UnityEngine;
 
 namespace Svrf.Unity.Editor
@@ -60,7 +61,7 @@ namespace Svrf.Unity.Editor
                 GUILayout.Space(BlockSpacing);
                 GUILayout.BeginHorizontal();
                 GUILayout.FlexibleSpace();
-                GUILayout.Label("Warning! This window opened in play mode.", EditorStyles.wordWrappedLabel);
+                GUILayout.Label("Warning! Play mode is active.", EditorStyles.wordWrappedLabel);
                 GUILayout.FlexibleSpace();
                 GUILayout.EndHorizontal();
             }
@@ -76,57 +77,21 @@ namespace Svrf.Unity.Editor
             GUILayout.BeginVertical();
             GUILayout.Space(Padding);
 
-            GUILayout.BeginHorizontal();
-            GUILayout.Label("You can find any model in Svrf", EditorStyles.boldLabel);
-            GUILayout.FlexibleSpace();
-
-            var isRefreshChecked = GUILayout.Button(_refreshIcon, GUILayout.Width(30), GUILayout.Height(30));
-
-            GUILayout.EndHorizontal();
+            DrawWindowLabel();
 
             IsFaceFilter = GUILayout.Toggle(IsFaceFilter, "Is Face Filter", GUILayout.Width(140));
-
-            GUILayout.BeginHorizontal();
-
-            GUILayout.BeginVertical();
-            GUILayout.Space(Padding);
-            _searchString = EditorGUILayout.TextField(_searchString);
-            GUILayout.EndVertical();
-
-
-            var isSearchChecked = GUILayout.Button("Search");
-
-            GUILayout.EndHorizontal();
-
-            GUILayout.BeginHorizontal();
-            GUILayout.FlexibleSpace();
-
-            GUILayout.EndHorizontal();
+            
+            DrawSearchField();
 
             GUILayout.Space(Padding);
             GUILayout.EndVertical();
-
-            if (isRefreshChecked)
-            { 
-                _textureLoader.SearchModels(_searchString);
-            }
-
-            if (isSearchChecked)
-            {
-                _textureLoader.SearchModels(_searchString);
-            }
-
         }
 
         private void DrawCellGrid()
         {
             if (_textureLoader.ModelsPreviews.Count == 0 && _textureLoader.IsNoResult)
             {
-                GUILayout.BeginHorizontal();
-                GUILayout.FlexibleSpace();
-                GUILayout.Label("No result", EditorStyles.boldLabel);
-                GUILayout.FlexibleSpace();
-                GUILayout.EndHorizontal();
+                DrawNoResultMessage();
                 return;
             }
             else if (_textureLoader.ModelsPreviews.Count == 0)
@@ -135,10 +100,8 @@ namespace Svrf.Unity.Editor
                 return;
             }
 
-
             GUILayout.BeginHorizontal();
-            var assetsPerRow = Mathf.Clamp(
-                Mathf.FloorToInt((position.width - 40)) / (CellSpacing + CellWidth), 1, int.MaxValue);
+            var assetsPerRow = GetAssetsCountPerRow();
             var assetsThisRow = 0;
 
             _scrollPosition = GUILayout.BeginScrollView(_scrollPosition);
@@ -186,33 +149,100 @@ namespace Svrf.Unity.Editor
             }
 
             GUILayout.EndHorizontal();
+
+            DrawLoadMoreButton();
+
+            GUILayout.EndVertical();
+            GUILayout.EndScrollView();
+
+            if (clickedModel != null)
+            {
+                InsertSelectedModel(clickedModel);
+            }
+        }
+
+        private void DrawSearchField()
+        {
+            GUILayout.BeginHorizontal();
+
+            GUILayout.BeginVertical();
+            GUILayout.Space(Padding);
+            _searchString = EditorGUILayout.TextField(_searchString);
+            GUILayout.EndVertical();
+
+            var isSearchClicked = GUILayout.Button("Search");
+
+            GUILayout.EndHorizontal();
+
+            if (isSearchClicked)
+            {
+                _textureLoader.SearchModels(_searchString);
+            }
+        }
+
+        private void DrawWindowLabel()
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("You can find any model in Svrf", EditorStyles.boldLabel);
+            GUILayout.FlexibleSpace();
+
+            if (string.IsNullOrEmpty(SvrfApiKey.Value))
+            {
+                var isCreateApiKeyObjectClicked = GUILayout.Button("Create Api Key Game Object", GUILayout.Height(30));
+
+                if (isCreateApiKeyObjectClicked)
+                {
+                    SvrfObjectsFactory.CreateSvrfApiKey();
+                }
+            }
+
+            var isRefreshClicked = GUILayout.Button(_refreshIcon, GUILayout.Width(30), GUILayout.Height(30));
+
+            GUILayout.EndHorizontal();
+
+            if (isRefreshClicked)
+            {
+                _textureLoader.SearchModels(_searchString);
+            }
+        }
+
+        private static void DrawNoResultMessage()
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
+            GUILayout.Label("No result", EditorStyles.boldLabel);
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
+        }
+
+        private static void DrawLoadMoreButton()
+        {
             GUILayout.Space(BlockSpacing);
 
             GUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
 
-            var isLoadMoreChecked = false;
-            if (!_textureLoader.IsAllPossibleModels)
+            var isLoadMoreClicked = false;
+            if (!_textureLoader.AreAllModelsLoaded)
             {
-                isLoadMoreChecked = GUILayout.Button("Load more");
+                isLoadMoreClicked = GUILayout.Button("Load more");
             }
 
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
             GUILayout.Space(Padding);
 
-            GUILayout.EndVertical();
-            GUILayout.EndScrollView();
-
-            if (isLoadMoreChecked)
+            if (isLoadMoreClicked)
             {
                 _textureLoader.LoadMoreModels();
             }
+        }
 
-            if (clickedModel != null)
-            {
-                InsertSelectedModel(clickedModel);
-            }
+        private int GetAssetsCountPerRow()
+        {
+            var flooredToIntWidth = Mathf.FloorToInt((position.width - 40));
+
+            return Mathf.Clamp(flooredToIntWidth / (CellSpacing + CellWidth), 1, int.MaxValue);
         }
 
         private static void InsertSelectedModel(SvrfPreview clickedModel)
@@ -227,8 +257,8 @@ namespace Svrf.Unity.Editor
                 return;
             }
 
-            var svrfGameObject = new GameObject(clickedModel.Title);
-            var svrfComponent = svrfGameObject.AddComponent<SvrfModel>();
+            var svrfGameObject = SvrfObjectsFactory.CreateSvrfModel(clickedModel.Title);
+            var svrfComponent = svrfGameObject.GetComponent<SvrfModel>();
             svrfComponent.SvrfModelId = clickedModel.Id;
         }
     }

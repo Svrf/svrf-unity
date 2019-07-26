@@ -6,8 +6,6 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Networking;
 
-#pragma warning disable CS4014
-
 namespace Svrf.Unity.Editor
 {
     [ExecuteAlways]
@@ -17,8 +15,8 @@ namespace Svrf.Unity.Editor
         private SvrfModel _svrfModel;
         private SvrfApi _svrfApi;
 
-        public static SvrfModel SelectedSvrfModel;
-        public static SvrfPreview Preview;
+        public static SvrfModel SelectedSvrfModel { get; set; }
+        public static SvrfPreview Preview { get; set; }
 
         private bool _isBadRequest;
         
@@ -47,19 +45,17 @@ namespace Svrf.Unity.Editor
 
                 if (model.Type != MediaType.Model3D)
                 {
-                    _isBadRequest = true;
-                    Repaint();
+                    SetUpBadRequest();
                     return;
                 }
             }
             catch
             {
-                _isBadRequest = true;
-                Repaint();
+                SetUpBadRequest();
                 return;
             }
             
-            var textureRequest = UnityWebRequestTexture.GetTexture(model.Files.Images.Max);
+            var textureRequest = UnityWebRequestTexture.GetTexture(model.Files.Images.Size720x720);
 
             await textureRequest.SendWebRequest();
 
@@ -73,6 +69,12 @@ namespace Svrf.Unity.Editor
             Repaint();
         }
 
+        private void SetUpBadRequest()
+        {
+            _isBadRequest = true;
+            Repaint();
+        }
+
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
@@ -83,17 +85,16 @@ namespace Svrf.Unity.Editor
             {
                 _isBadRequest = false;
                 GUILayout.FlexibleSpace();
-                GUILayout.Label("Model didn't select");
-            } else if (Preview == null || Preview.Id != _svrfModel.SvrfModelId)
+                GUILayout.Label("Model isn't selected");
+            }
+            else if (Preview == null || Preview.Id != _svrfModel.SvrfModelId)
             {
                 Awake();
             } 
             else
             {
                 _isBadRequest = false;
-                GUILayout.Label($"Model : {Preview.Title}");
-                GUILayout.FlexibleSpace();
-                GUILayout.Label(Preview.Texture, GUILayout.Width(128), GUILayout.Height(96));
+                DrawModelPreview();
             }
 
             GUILayout.FlexibleSpace();
@@ -101,32 +102,31 @@ namespace Svrf.Unity.Editor
 
             if (_isBadRequest)
             {
-                EditorGUILayout.BeginHorizontal();
-                GUILayout.FlexibleSpace();
-                GUILayout.Label("Bad request ID");
-                GUILayout.FlexibleSpace();
-                EditorGUILayout.EndHorizontal();
+                DrawBadRequest();
             }
 
             var isOpenWindowClicked = GUILayout.Button("Open Svrf Window");
 
-            if (isOpenWindowClicked)
-            {
-                SelectedSvrfModel = _svrfModel;
-                SvrfWindow.ShowWindow();
-            }
+            if (!isOpenWindowClicked) return;
 
-            if (string.IsNullOrEmpty(SvrfApiKey.Value))
-            {
-                if (GUILayout.Button("Create Api key Game Object"))
-                {
-                    var gameObject = new GameObject("Svrf Api Key");
-                    gameObject.AddComponent<SvrfApiKey>();
+            SelectedSvrfModel = _svrfModel;
+            SvrfWindow.ShowWindow();
+        }
 
-                    Selection.activeObject = gameObject;
-                }
-            }
+        private static void DrawBadRequest()
+        {
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
+            GUILayout.Label("Invalid model ID. Only 3D models are supported");
+            GUILayout.FlexibleSpace();
+            EditorGUILayout.EndHorizontal();
+        }
+
+        private static void DrawModelPreview()
+        {
+            GUILayout.Label($"Model: {Preview.Title}");
+            GUILayout.FlexibleSpace();
+            GUILayout.Label(Preview.Texture, GUILayout.Width(128), GUILayout.Height(96));
         }
     }
-
 }

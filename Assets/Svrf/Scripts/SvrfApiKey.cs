@@ -3,6 +3,7 @@ using System;
 
 namespace Svrf.Unity
 {
+    [ExecuteAlways]
     [Serializable]
     public sealed class SvrfApiKey : MonoBehaviour
     {
@@ -11,7 +12,7 @@ namespace Svrf.Unity
 
         public static string Value { get; set; }
 
-        public void Awake()
+        public void Update()
         {
             Value = _apiKey;
         }

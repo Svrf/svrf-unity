@@ -9,6 +9,8 @@ using Svrf.Unity.Editor.Extensions;
 using UnityEngine;
 using UnityEngine.Networking;
 
+// Async function are run without awaiting response because we need to load preview images
+// in different threads. That's why we need to disable the pragma warning.
 #pragma warning disable CS4014
 
 namespace Svrf.Unity.Editor
@@ -18,7 +20,7 @@ namespace Svrf.Unity.Editor
         public Action OnTextureLoaded { get; set; }
         public readonly List<SvrfPreview> ModelsPreviews = new List<SvrfPreview>();
 
-        public bool IsAllPossibleModels;
+        public bool AreAllModelsLoaded;
         public bool IsNoResult;
 
         private readonly SvrfApi _api;
@@ -51,15 +53,9 @@ namespace Svrf.Unity.Editor
 
             var media = multipleResponse.Media.ToList();
 
-            if (media.Count < Size)
-            {
-                IsAllPossibleModels = true;
-            }
+            AreAllModelsLoaded = media.Count < Size;
 
-            if (media.Count == 0)
-            {
-                IsNoResult = true;
-            }
+            IsNoResult = media.Count == 0;
 
             foreach (var model in media)
             {
@@ -80,7 +76,7 @@ namespace Svrf.Unity.Editor
 
         private void Clear()
         {
-            IsAllPossibleModels = false;
+            AreAllModelsLoaded = false;
             _pageNum = 0;
             ModelsPreviews.Clear();
         }
@@ -88,7 +84,7 @@ namespace Svrf.Unity.Editor
         private async Task LoadThumbnailImage(MediaModel model)
         {
             var request = UnityWebRequestTexture.GetTexture(model.Files.Images.Size720x720);
-            
+
             await request.SendWebRequest();
 
             if (request.isNetworkError || request.isHttpError)
@@ -101,7 +97,5 @@ namespace Svrf.Unity.Editor
             ModelsPreviews.Add(new SvrfPreview { Texture = texture, Title = model.Title, Id = model.Id});
             OnTextureLoaded();
         }
-        
     }
-
 }
