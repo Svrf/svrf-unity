@@ -145,8 +145,17 @@ namespace Svrf.Unity.Editor
 
         private void DrawModelPreview()
         {
+            EditorGUILayout.BeginVertical();
+
             GUILayout.Label($"Model: {Preview.Title}", EditorStyles.boldLabel);
-            GUILayout.Label(Preview.Texture, GUILayout.Width(136), GUILayout.Height(136));
+
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
+            GUILayout.Label(Preview.Texture, GUILayout.Width(136));
+            GUILayout.FlexibleSpace();
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.EndVertical();
         }
     }
 }
