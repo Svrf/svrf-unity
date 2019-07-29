@@ -140,7 +140,7 @@ namespace Svrf.Unity.Editor
 
                 GUILayout.BeginVertical();
 
-                if (ModelPreviewsStorage.Previews.TryGetValue(modelId, out var modelPreview))
+                if (PreviewsCache.Previews.TryGetValue(modelId, out var modelPreview))
                 {
                     var isPreviewButtonClicked = GUILayout.Button(modelPreview.Texture,
                         GUILayout.Width(ThumbnailWidth), GUILayout.Height(ThumbnailHeight));

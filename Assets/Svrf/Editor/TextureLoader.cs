@@ -64,7 +64,7 @@ namespace Svrf.Unity.Editor
             {
                 ModelIds.Add(model.Id);
 
-                if (!ModelPreviewsStorage.Previews.ContainsKey(model.Id))
+                if (!PreviewsCache.Previews.ContainsKey(model.Id))
                 {
                     LoadThumbnailImage(model);
                 }
@@ -102,7 +102,7 @@ namespace Svrf.Unity.Editor
 
         private async Task LoadThumbnailImage(MediaModel model)
         {
-            var request = UnityWebRequestTexture.GetTexture(model.Files.Images.Size720x720);
+            var request = UnityWebRequestTexture.GetTexture(model.Files.Images.Width136);
 
             await request.SendWebRequest();
 
@@ -114,7 +114,7 @@ namespace Svrf.Unity.Editor
 
             Texture texture = ((DownloadHandlerTexture)request.downloadHandler).texture;
 
-            ModelPreviewsStorage.Previews.Add(model.Id, new SvrfPreview
+            PreviewsCache.Previews.Add(model.Id, new SvrfPreview
             {
                 Id = model.Id,
                 Texture = texture,

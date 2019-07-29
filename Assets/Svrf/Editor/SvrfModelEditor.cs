@@ -78,7 +78,6 @@ namespace Svrf.Unity.Editor
             }
 
             var isOpenWindowClicked = GUILayout.Button("Open Svrf Window");
-
             if (!isOpenWindowClicked) return;
 
             SelectedSvrfModel = _svrfModel;
@@ -87,7 +86,7 @@ namespace Svrf.Unity.Editor
 
         private async Task InsertThumbnailImage()
         {
-            if (ModelPreviewsStorage.Previews.TryGetValue(_svrfModel.SvrfModelId, out var modelPreview))
+            if (PreviewsCache.Previews.TryGetValue(_svrfModel.SvrfModelId, out var modelPreview))
             {
                 Preview = modelPreview;
                 Repaint();
@@ -107,7 +106,7 @@ namespace Svrf.Unity.Editor
                 Id = model.Id,
             };
 
-            ModelPreviewsStorage.Previews.Add(model.Id, Preview);
+            PreviewsCache.Previews.Add(model.Id, Preview);
 
             Repaint();
         }
