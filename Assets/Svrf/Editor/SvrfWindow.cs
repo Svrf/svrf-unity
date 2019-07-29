@@ -1,5 +1,5 @@
-﻿using System.Threading.Tasks;
-using Svrf.Editor;
+﻿using Svrf.Editor;
+using Svrf.Exceptions;
 using UnityEditor;
 using UnityEngine;
 
@@ -22,7 +22,9 @@ namespace Svrf.Unity.Editor
         public static bool IsFaceFilter = true;
 
         private Texture _refreshIcon;
-        private bool _isApiKeyEmpty;
+
+        private bool _isApiKeyValid;
+        private string _oldApiKeyValue;
 
         [MenuItem("Window/Svrf")]
         public static void ShowWindow()
@@ -34,10 +36,19 @@ namespace Svrf.Unity.Editor
         {
             _refreshIcon = Resources.Load("refresh_icon") as Texture;
 
-            if (string.IsNullOrEmpty(SvrfApiKey.Value)) return;
+            CheckApiKey();
+            if (!_isApiKeyValid) return;
 
-            _textureLoader = new TextureLoader(Repaint);
-            await _textureLoader.FetchMediaModels();
+            try
+            {
+                _textureLoader = new TextureLoader(Repaint);
+                await _textureLoader.FetchMediaModels();
+            }
+            catch (ApiKeyNotFoundException)
+            {
+                _isApiKeyValid = false;
+                _textureLoader = null;
+            }
         }
 
         public void OnDestroy()
@@ -47,9 +58,9 @@ namespace Svrf.Unity.Editor
 
         public void OnGUI()
         {
-            _isApiKeyEmpty = string.IsNullOrEmpty(SvrfApiKey.Value);
+            CheckApiKey();
 
-            if (_textureLoader == null && !_isApiKeyEmpty)
+            if (_textureLoader == null)
             {
                 Awake();
             }
@@ -68,7 +79,7 @@ namespace Svrf.Unity.Editor
 
             DrawSearchArea();
 
-            if (_isApiKeyEmpty)
+            if (!_isApiKeyValid)
             {
                 GUILayout.EndArea();
                 return;
@@ -79,6 +90,14 @@ namespace Svrf.Unity.Editor
             GUILayout.EndArea();
         }
 
+        private void CheckApiKey()
+        {
+            if (_oldApiKeyValue == SvrfApiKey.Value) return;
+
+            _oldApiKeyValue = SvrfApiKey.Value;
+            _isApiKeyValid = !string.IsNullOrEmpty(SvrfApiKey.Value);
+        }
+
         private void DrawSearchArea()
         {
             GUILayout.BeginVertical();
@@ -86,7 +105,7 @@ namespace Svrf.Unity.Editor
 
             DrawWindowLabel();
 
-            if (_isApiKeyEmpty)
+            if (!_isApiKeyValid)
             {
                 GUILayout.Space(Padding);
                 GUILayout.EndVertical();
@@ -211,9 +230,9 @@ namespace Svrf.Unity.Editor
         {
             GUILayout.BeginHorizontal();
 
-            if (_isApiKeyEmpty)
+            if (!_isApiKeyValid)
             {
-                GUILayout.Label("Please set api key in the Svrf Api Key game object", EditorStyles.boldLabel);
+                GUILayout.Label("Please set valid api key in the Svrf Api Key game object", EditorStyles.boldLabel);
                 GUILayout.FlexibleSpace();
                 var isCreateApiKeyObjectClicked = GUILayout.Button("Create Api Key game object", GUILayout.Height(30));
 

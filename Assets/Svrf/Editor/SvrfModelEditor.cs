@@ -17,7 +17,7 @@ namespace Svrf.Unity.Editor
         private SvrfModel _svrfModel;
         private SvrfApi _svrfApi;
 
-        private const string NoApiKeyMessage = "Please set api key in the Svrf Api Key game object";
+        private const string NoApiKeyMessage = "Please set correct api key in the Svrf Api Key game object";
         private const string InvalidMediaTypeMessage = "Only 3D models are supported.";
         private const string ModelIdNotFoundMessage = "The model Id was not found.";
 
