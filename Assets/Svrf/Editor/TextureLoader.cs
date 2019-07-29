@@ -15,28 +15,29 @@ using UnityEngine.Networking;
 
 namespace Svrf.Unity.Editor
 {
-    public class TextureLoader
+    internal class TextureLoader
     {
-        public Action OnTextureLoaded { get; set; }
-        public readonly List<SvrfPreview> ModelsPreviews = new List<SvrfPreview>();
+        internal Action OnTextureLoaded { get; set; }
 
-        public bool AreAllModelsLoaded;
-        public bool IsNoResult;
-        public bool IsLoading;
+        internal bool AreAllModelsLoaded;
+        internal bool IsNoResult;
+        internal bool IsLoading;
+
+        internal List<string> ModelIds { get; set; } = new List<string>();
 
         private readonly SvrfApi _api;
 
         private int _pageNum = 0;
         private const int Size = 10;
 
-        public TextureLoader(Action callback)
+        internal TextureLoader(Action onTextureLoaded)
         {
             _api = new SvrfApi();
 
-            OnTextureLoaded = callback;
+            OnTextureLoaded = onTextureLoaded;
         }
 
-        public async Task FetchMediaModels(string searchString = null)
+        internal async Task FetchMediaModels(string searchString = null)
         {
             IsLoading = true;
             OnTextureLoaded();
@@ -61,8 +62,24 @@ namespace Svrf.Unity.Editor
 
             foreach (var model in media)
             {
-                LoadThumbnailImage(model);
+                ModelIds.Add(model.Id);
+
+                if (!ModelPreviewsStorage.Previews.ContainsKey(model.Id))
+                {
+                    LoadThumbnailImage(model);
+                }
             }
+        }
+
+        internal void LoadMoreModels()
+        {
+            FetchMediaModels();
+        }
+
+        internal void SearchModels(string searchString = null)
+        {
+            Clear();
+            FetchMediaModels(searchString);
         }
 
         private void OnFinishLoading(int mediaCount)
@@ -76,22 +93,11 @@ namespace Svrf.Unity.Editor
             OnTextureLoaded();
         }
 
-        public void LoadMoreModels()
-        {
-            FetchMediaModels();
-        }
-
-        public void SearchModels(string searchString = null)
-        {
-            Clear();
-            FetchMediaModels(searchString);
-        }
-
         private void Clear()
         {
             AreAllModelsLoaded = false;
             _pageNum = 0;
-            ModelsPreviews.Clear();
+            ModelIds.Clear();
         }
 
         private async Task LoadThumbnailImage(MediaModel model)
@@ -102,12 +108,19 @@ namespace Svrf.Unity.Editor
 
             if (request.isNetworkError || request.isHttpError)
             {
+                ModelIds.RemoveAt(ModelIds.FindIndex(id => id == model.Id));
                 return;
             }
 
             Texture texture = ((DownloadHandlerTexture)request.downloadHandler).texture;
 
-            ModelsPreviews.Add(new SvrfPreview { Texture = texture, Title = model.Title, Id = model.Id});
+            ModelPreviewsStorage.Previews.Add(model.Id, new SvrfPreview
+            {
+                Id = model.Id,
+                Texture = texture,
+                Title = model.Title
+            });
+
             OnTextureLoaded();
         }
     }

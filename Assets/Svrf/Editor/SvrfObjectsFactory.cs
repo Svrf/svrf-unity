@@ -4,9 +4,9 @@ using UnityEngine;
 
 namespace Svrf.Editor
 {
-    public static class SvrfObjectsFactory
+    internal static class SvrfObjectsFactory
     {
-        public static GameObject CreateSvrfModel(string name = null)
+        internal static GameObject CreateSvrfModel(string name = null)
         {
             name = name ?? "Svrf Model";
 
@@ -18,7 +18,7 @@ namespace Svrf.Editor
             return gameObject;
         }
 
-        public static GameObject CreateSvrfApiKey()
+        internal static GameObject CreateSvrfApiKey()
         {
             var gameObject = new GameObject("Svrf Api Key");
             gameObject.AddComponent<SvrfApiKey>();
@@ -28,7 +28,7 @@ namespace Svrf.Editor
             return gameObject;
         }
 
-        private static void HandleObjectCreating(GameObject gameObject)
+        internal static void HandleObjectCreating(GameObject gameObject)
         {
             Undo.RegisterCreatedObjectUndo(gameObject, "Create " + gameObject.name);
             Selection.activeObject = gameObject;

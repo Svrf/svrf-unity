@@ -4,8 +4,8 @@ namespace Svrf.Unity.Editor
 {
     public class SvrfPreview
     {
-        public Texture Texture { get; set; }
-        public string Title { get; set; }
-        public string Id { get; set; }
+        internal Texture Texture { get; set; }
+        internal string Title { get; set; }
+        internal string Id { get; set; }
     }
 }

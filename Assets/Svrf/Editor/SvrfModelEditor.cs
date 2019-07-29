@@ -43,55 +43,6 @@ namespace Svrf.Unity.Editor
             _isLoading = false;
         }
 
-        private async Task InsertThumbnailImage()
-        {
-            MediaModel model;
-
-            try
-            {
-                model = (await _svrfApi.Media.GetByIdAsync(_svrfModel.SvrfModelId)).Media;
-                if (model.Type != MediaType.Model3D)
-                {
-                    SetErrorMessage(InvalidMediaTypeMessage);
-                    return;
-                }
-            }
-            catch (ArgumentException)
-            {
-                SetErrorMessage(NoApiKeyMessage);
-                return;
-            }
-            catch (ApiKeyNotFoundException)
-            {
-                SetErrorMessage(NoApiKeyMessage);
-                return;
-            }
-            catch
-            {
-                SetErrorMessage(ModelIdNotFoundMessage);
-                return;
-            }
-            
-            var textureRequest = UnityWebRequestTexture.GetTexture(model.Files.Images.Width136);
-
-            await textureRequest.SendWebRequest();
-
-            Preview = new SvrfPreview
-            {
-                Texture = ((DownloadHandlerTexture)textureRequest.downloadHandler).texture,
-                Title = model.Title,
-                Id = model.Id,
-            };
-
-            Repaint();
-        }
-
-        private void SetErrorMessage(string message)
-        {
-            _errorMessage = message;
-            Repaint();
-        }
-
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
@@ -111,7 +62,7 @@ namespace Svrf.Unity.Editor
                     Awake();
                     _svrfModel.IsChanged = false;
                 }
-            } 
+            }
             else
             {
                 _errorMessage = string.Empty;
@@ -134,6 +85,67 @@ namespace Svrf.Unity.Editor
             SvrfWindow.ShowWindow();
         }
 
+        private async Task InsertThumbnailImage()
+        {
+            if (ModelPreviewsStorage.Previews.TryGetValue(_svrfModel.SvrfModelId, out var modelPreview))
+            {
+                Preview = modelPreview;
+                Repaint();
+                return;
+            }
+            
+            var model = await LoadMediaModel();
+            if (model == null) return;
+
+            var textureRequest = UnityWebRequestTexture.GetTexture(model.Files.Images.Width136);
+            await textureRequest.SendWebRequest();
+
+            Preview = new SvrfPreview
+            {
+                Texture = ((DownloadHandlerTexture)textureRequest.downloadHandler).texture,
+                Title = model.Title,
+                Id = model.Id,
+            };
+
+            ModelPreviewsStorage.Previews.Add(model.Id, Preview);
+
+            Repaint();
+        }
+
+        private async Task<MediaModel> LoadMediaModel()
+        {
+            MediaModel model = null;
+
+            try
+            {
+                model = (await _svrfApi.Media.GetByIdAsync(_svrfModel.SvrfModelId)).Media;
+                if (model.Type != MediaType.Model3D)
+                {
+                    SetErrorMessage(InvalidMediaTypeMessage);
+                }
+            }
+            catch (ArgumentException)
+            {
+                SetErrorMessage(NoApiKeyMessage);
+            }
+            catch (ApiKeyNotFoundException)
+            {
+                SetErrorMessage(NoApiKeyMessage);
+            }
+            catch
+            {
+                SetErrorMessage(ModelIdNotFoundMessage);
+            }
+
+            return model;
+        }
+
+        private void SetErrorMessage(string message)
+        {
+            _errorMessage = message;
+            Repaint();
+        }
+
         private void DrawErrorMessage()
         {
             EditorGUILayout.BeginHorizontal();
@@ -143,7 +155,7 @@ namespace Svrf.Unity.Editor
             EditorGUILayout.EndHorizontal();
         }
 
-        private void DrawModelPreview()
+        private static void DrawModelPreview()
         {
             EditorGUILayout.BeginVertical();
 

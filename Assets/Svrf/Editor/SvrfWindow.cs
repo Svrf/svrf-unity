@@ -1,4 +1,5 @@
-﻿using Svrf.Editor;
+﻿using System.Threading.Tasks;
+using Svrf.Editor;
 using UnityEditor;
 using UnityEngine;
 
@@ -17,6 +18,7 @@ namespace Svrf.Unity.Editor
 
         private Vector2 _scrollPosition;
         private string _searchString = string.Empty;
+
         public static bool IsFaceFilter = true;
 
         private Texture _refreshIcon;
@@ -28,33 +30,28 @@ namespace Svrf.Unity.Editor
             GetWindow<SvrfWindow>("Svrf");
         }
 
+        public async void Awake()
+        {
+            _refreshIcon = Resources.Load("refresh_icon") as Texture;
+
+            if (string.IsNullOrEmpty(SvrfApiKey.Value)) return;
+
+            _textureLoader = new TextureLoader(Repaint);
+            await _textureLoader.FetchMediaModels();
+        }
+
         public void OnDestroy()
         {
             SvrfModelEditor.SelectedSvrfModel = null;
         }
 
-        public async void Awake()
-        {
-            CreateTextureLoaderInstance();
-
-            _refreshIcon = Resources.Load("refresh_icon") as Texture;
-
-            await _textureLoader.FetchMediaModels();
-        }
-
-        private void CreateTextureLoaderInstance()
-        {
-            _textureLoader = new TextureLoader(Repaint);
-        }
-
-        private void OnGUI()
+        public void OnGUI()
         {
             _isApiKeyEmpty = string.IsNullOrEmpty(SvrfApiKey.Value);
 
-            if (_textureLoader == null)
+            if (_textureLoader == null && !_isApiKeyEmpty)
             {
-                CreateTextureLoaderInstance();
-                _textureLoader?.LoadMoreModels();
+                Awake();
             }
 
             GUILayout.BeginArea(new Rect(Padding, Padding, position.width - 2 * Padding, position.height - 2 * Padding));
@@ -106,12 +103,13 @@ namespace Svrf.Unity.Editor
 
         private void DrawCellGrid()
         {
-            if (_textureLoader.ModelsPreviews.Count == 0 && _textureLoader.IsNoResult)
+            if (_textureLoader.ModelIds.Count == 0 && _textureLoader.IsNoResult)
             {
                 DrawNoResultMessage();
                 return;
             }
-            else if (_textureLoader.ModelsPreviews.Count == 0)
+
+            if (_textureLoader.ModelIds.Count == 0)
             {
                 GUILayout.Label("Loading...", EditorStyles.boldLabel);
                 return;
@@ -128,7 +126,7 @@ namespace Svrf.Unity.Editor
 
             SvrfPreview clickedModel = null;
 
-            foreach (var model in _textureLoader.ModelsPreviews)
+            foreach (var modelId in _textureLoader.ModelIds)
             {
                 if (assetsThisRow >= assetsPerRow)
                 {
@@ -141,14 +139,26 @@ namespace Svrf.Unity.Editor
                 if (assetsThisRow > 0) GUILayout.Space(CellSpacing);
 
                 GUILayout.BeginVertical();
-                if (GUILayout.Button(model.Texture,
-                    GUILayout.Width(ThumbnailWidth), GUILayout.Height(ThumbnailHeight)))
-                {
-                    clickedModel = model;
-                }
-                GUILayout.Space(CellSpacing);
 
-                GUILayout.Label(model.Title, EditorStyles.boldLabel, GUILayout.MaxWidth(CellWidth));
+                if (ModelPreviewsStorage.Previews.TryGetValue(modelId, out var modelPreview))
+                {
+                    var isPreviewButtonClicked = GUILayout.Button(modelPreview.Texture,
+                        GUILayout.Width(ThumbnailWidth), GUILayout.Height(ThumbnailHeight));
+
+                    if (isPreviewButtonClicked)
+                    {
+                        clickedModel = modelPreview;
+                    }
+
+                    GUILayout.Space(CellSpacing);
+                    GUILayout.Label(modelPreview.Title, EditorStyles.boldLabel, GUILayout.MaxWidth(CellWidth));
+                }
+                else
+                {
+                    GUILayout.Button("Loading", GUILayout.Height(ThumbnailHeight), GUILayout.Width(ThumbnailWidth));
+                    GUILayout.Space(CellSpacing);
+                    GUILayout.Label(string.Empty, EditorStyles.boldLabel, GUILayout.MaxWidth(CellWidth));
+                }
 
                 GUILayout.EndVertical();
                 assetsThisRow++;
@@ -228,7 +238,7 @@ namespace Svrf.Unity.Editor
             }
         }
 
-        private void DrawNoResultMessage()
+        private static void DrawNoResultMessage()
         {
             GUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
@@ -272,21 +282,21 @@ namespace Svrf.Unity.Editor
             return Mathf.Clamp(flooredToIntWidth / (CellSpacing + CellWidth), 1, int.MaxValue);
         }
 
-        private void InsertSelectedModel(SvrfPreview clickedModel)
+        private static void InsertSelectedModel(SvrfPreview preview)
         {
             if (SvrfModelEditor.SelectedSvrfModel != null)
             {
                 var svrfModel = SvrfModelEditor.SelectedSvrfModel;
+                svrfModel.SvrfModelId = preview.Id;
 
-                svrfModel.SvrfModelId = clickedModel.Id;
-                SvrfModelEditor.Preview = clickedModel;
+                SvrfModelEditor.Preview = preview;
 
                 return;
             }
 
-            var svrfGameObject = SvrfObjectsFactory.CreateSvrfModel(clickedModel.Title);
+            var svrfGameObject = SvrfObjectsFactory.CreateSvrfModel(preview.Title);
             var svrfComponent = svrfGameObject.GetComponent<SvrfModel>();
-            svrfComponent.SvrfModelId = clickedModel.Id;
+            svrfComponent.SvrfModelId = preview.Id;
         }
     }
 }
