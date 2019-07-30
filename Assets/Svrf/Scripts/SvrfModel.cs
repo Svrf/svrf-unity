@@ -50,11 +50,6 @@ namespace Svrf.Unity
             return gameObject;
         }
 
-        public static TaskBasedCoroutine<GameObject> GetSvrfModelCoroutine(MediaModel model, SvrfModelOptions options = null, GameObject gameObject = null)
-        {
-            return new TaskBasedCoroutine<GameObject>(GetSvrfModelAsync(model, options, gameObject));
-        }
-
         private static void CreateSvrfInstance()
         {
             if (_svrf == null)

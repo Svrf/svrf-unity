@@ -14,12 +14,12 @@ namespace Svrf.Unity.Examples
         {
             SvrfApi api = new SvrfApi();
 
-            TaskBasedCoroutine<MultipleMediaResponse> requestCoroutine = api.MediaCoroutines.GetTrending();
+            TaskBasedCoroutine<MultipleMediaResponse> requestCoroutine = api.Media.GetTrendingAsync().AsCoroutine();
             yield return requestCoroutine;
 
             MediaModel model = requestCoroutine.Result.Media.First();
             SvrfModelOptions options = new SvrfModelOptions { WithOccluder = false };
-            yield return SvrfModel.GetSvrfModelCoroutine(model, options);
+            yield return SvrfModel.GetSvrfModelAsync(model, options).AsCoroutine();
 
             Destroy(GameObject.Find("Loading"));
         }
