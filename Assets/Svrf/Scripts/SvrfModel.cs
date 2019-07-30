@@ -23,6 +23,8 @@ namespace Svrf.Unity
 
         public bool IsLoading { get; set; } = true;
 
+        public bool IsChanged { get; set; }
+
         public async void Start()
         {
             CreateSvrfInstance();
@@ -37,6 +39,11 @@ namespace Svrf.Unity
             await SvrfModelUtility.AddSvrfModel(gameObject, model, options);
 
             IsLoading = false;
+        }
+
+        public void OnValidate()
+        {
+            IsChanged = true;
         }
 
         public static async Task<GameObject> GetSvrfModelAsync(MediaModel model, SvrfModelOptions options = null, GameObject gameObject = null)
