@@ -13,7 +13,7 @@ using UnityEngine.Networking;
 // in different threads. That's why we need to disable the pragma warning.
 #pragma warning disable CS4014
 
-namespace Svrf.Unity.Editor
+namespace Svrf.Unity.Editor.Utilities
 {
     internal class TextureLoader
     {
@@ -25,15 +25,11 @@ namespace Svrf.Unity.Editor
 
         internal List<string> ModelIds { get; set; } = new List<string>();
 
-        private readonly SvrfApi _api;
-
         private int _pageNum = 0;
         private const int Size = 10;
 
         internal TextureLoader(Action onTextureLoaded)
         {
-            _api = new SvrfApi();
-
             OnTextureLoaded = onTextureLoaded;
         }
 
@@ -51,8 +47,8 @@ namespace Svrf.Unity.Editor
             };
 
             var multipleResponse = string.IsNullOrEmpty(searchString) ?
-                await _api.Media.GetTrendingAsync(options) :
-                await _api.Media.SearchAsync(searchString, options);
+                await SvrfApiSingleton.Instance.Media.GetTrendingAsync(options) :
+                await SvrfApiSingleton.Instance.Media.SearchAsync(searchString, options);
 
             _pageNum = multipleResponse.NextPageNum;
 
@@ -64,7 +60,7 @@ namespace Svrf.Unity.Editor
             {
                 ModelIds.Add(model.Id);
 
-                if (!PreviewsCache.Previews.ContainsKey(model.Id))
+                if (PreviewsCache.Get(model.Id) == null)
                 {
                     LoadThumbnailImage(model);
                 }
@@ -114,7 +110,7 @@ namespace Svrf.Unity.Editor
 
             Texture texture = ((DownloadHandlerTexture)request.downloadHandler).texture;
 
-            PreviewsCache.Previews.Add(model.Id, new SvrfPreview
+            PreviewsCache.Add(new SvrfPreview
             {
                 Id = model.Id,
                 Texture = texture,

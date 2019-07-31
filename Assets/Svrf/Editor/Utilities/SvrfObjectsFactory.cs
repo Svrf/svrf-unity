@@ -1,8 +1,7 @@
-﻿using Svrf.Unity;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 
-namespace Svrf.Editor
+namespace Svrf.Unity.Editor.Utilities
 {
     internal static class SvrfObjectsFactory
     {

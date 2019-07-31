@@ -1,5 +1,5 @@
-﻿using Svrf.Editor;
-using Svrf.Exceptions;
+﻿using Svrf.Exceptions;
+using Svrf.Unity.Editor.Utilities;
 using UnityEditor;
 using UnityEngine;
 
@@ -159,24 +159,25 @@ namespace Svrf.Unity.Editor
 
                 GUILayout.BeginVertical();
 
-                if (PreviewsCache.Previews.TryGetValue(modelId, out var modelPreview))
-                {
-                    var isPreviewButtonClicked = GUILayout.Button(modelPreview.Texture,
-                        GUILayout.Width(ThumbnailWidth), GUILayout.Height(ThumbnailHeight));
-
-                    if (isPreviewButtonClicked)
-                    {
-                        clickedModel = modelPreview;
-                    }
-
-                    GUILayout.Space(CellSpacing);
-                    GUILayout.Label(modelPreview.Title, EditorStyles.boldLabel, GUILayout.MaxWidth(CellWidth));
-                }
-                else
+                var preview = PreviewsCache.Get(modelId);
+                if (preview == null)
                 {
                     GUILayout.Button("Loading", GUILayout.Height(ThumbnailHeight), GUILayout.Width(ThumbnailWidth));
                     GUILayout.Space(CellSpacing);
                     GUILayout.Label(string.Empty, EditorStyles.boldLabel, GUILayout.MaxWidth(CellWidth));
+                }
+                else
+                {
+                    var isPreviewButtonClicked = GUILayout.Button(preview.Texture,
+                        GUILayout.Width(ThumbnailWidth), GUILayout.Height(ThumbnailHeight));
+
+                    if (isPreviewButtonClicked)
+                    {
+                        clickedModel = preview;
+                    }
+
+                    GUILayout.Space(CellSpacing);
+                    GUILayout.Label(preview.Title, EditorStyles.boldLabel, GUILayout.MaxWidth(CellWidth));
                 }
 
                 GUILayout.EndVertical();
