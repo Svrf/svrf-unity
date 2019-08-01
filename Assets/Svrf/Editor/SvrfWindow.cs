@@ -49,6 +49,12 @@ namespace Svrf.Unity.Editor
                 _isApiKeyValid = false;
                 _textureLoader = null;
             }
+
+            // Textures are lost when exiting play mode, so need to refresh.
+            EditorApplication.playModeStateChanged += state =>
+            {
+                if (state == PlayModeStateChange.ExitingPlayMode) Refresh();
+            };
         }
 
         public void OnDestroy()
@@ -96,6 +102,11 @@ namespace Svrf.Unity.Editor
 
             _oldApiKeyValue = SvrfApiKey.Value;
             _isApiKeyValid = !string.IsNullOrEmpty(SvrfApiKey.Value);
+        }
+
+        private void Refresh()
+        {
+            _textureLoader.SearchModels(_searchString);
         }
 
         private void DrawSearchArea()
@@ -223,7 +234,7 @@ namespace Svrf.Unity.Editor
 
             if (isSearchClicked)
             {
-                _textureLoader.SearchModels(_searchString);
+                Refresh();
             }
         }
 
@@ -254,7 +265,7 @@ namespace Svrf.Unity.Editor
 
             if (isRefreshClicked)
             {
-                _textureLoader.SearchModels(_searchString);
+                Refresh();
             }
         }
 

@@ -43,7 +43,7 @@ namespace Svrf.Unity.Editor.Utilities
                 PageNum = _pageNum,
                 Size = Size,
                 Type = new[] { MediaType.Model3D },
-                IsFaceFilter = SvrfWindow.IsFaceFilter ? SvrfWindow.IsFaceFilter : (bool?) null,
+                IsFaceFilter = SvrfWindow.IsFaceFilter ? true : (bool?) null,
             };
 
             var multipleResponse = string.IsNullOrEmpty(searchString) ?
