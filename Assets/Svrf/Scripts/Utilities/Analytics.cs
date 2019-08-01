@@ -7,14 +7,13 @@ using Segment;
 using Segment.Model;
 using Svrf.Api;
 using Svrf.Models.Media;
-using UnityEngine;
 
 namespace Svrf.Unity.Utilities
 {
     internal static class SegmentTracking
     {
         private const string SdkVersion = "1.1.0";
-        private const string SegmentWriteKey = "eMiyXZ4078GqLgcwef8Zl1TqwSfN71Ca";
+        private const string SegmentWriteKey = "VNcUInbeQ5UX2uM2hcXONRfwQqivs7CT";
 
         private const string FaceFilterEventName = "Face Filter Node Requseted";
         private const string Model3DEventName = "3D Node Requested";
