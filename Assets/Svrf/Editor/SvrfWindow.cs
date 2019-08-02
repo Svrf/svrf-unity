@@ -1,5 +1,5 @@
-﻿using Svrf.Editor;
-using Svrf.Exceptions;
+﻿using Svrf.Exceptions;
+using Svrf.Unity.Editor.Utilities;
 using UnityEditor;
 using UnityEngine;
 
@@ -49,6 +49,12 @@ namespace Svrf.Unity.Editor
                 _isApiKeyValid = false;
                 _textureLoader = null;
             }
+
+            // Textures are lost when exiting play mode, so need to refresh.
+            EditorApplication.playModeStateChanged += state =>
+            {
+                if (state == PlayModeStateChange.ExitingPlayMode) Refresh();
+            };
         }
 
         public void OnDestroy()
@@ -96,6 +102,11 @@ namespace Svrf.Unity.Editor
 
             _oldApiKeyValue = SvrfApiKey.Value;
             _isApiKeyValid = !string.IsNullOrEmpty(SvrfApiKey.Value);
+        }
+
+        private void Refresh()
+        {
+            _textureLoader.SearchModels(_searchString);
         }
 
         private void DrawSearchArea()
@@ -159,24 +170,25 @@ namespace Svrf.Unity.Editor
 
                 GUILayout.BeginVertical();
 
-                if (PreviewsCache.Previews.TryGetValue(modelId, out var modelPreview))
-                {
-                    var isPreviewButtonClicked = GUILayout.Button(modelPreview.Texture,
-                        GUILayout.Width(ThumbnailWidth), GUILayout.Height(ThumbnailHeight));
-
-                    if (isPreviewButtonClicked)
-                    {
-                        clickedModel = modelPreview;
-                    }
-
-                    GUILayout.Space(CellSpacing);
-                    GUILayout.Label(modelPreview.Title, EditorStyles.boldLabel, GUILayout.MaxWidth(CellWidth));
-                }
-                else
+                var preview = PreviewsCache.Get(modelId);
+                if (preview == null)
                 {
                     GUILayout.Button("Loading", GUILayout.Height(ThumbnailHeight), GUILayout.Width(ThumbnailWidth));
                     GUILayout.Space(CellSpacing);
                     GUILayout.Label(string.Empty, EditorStyles.boldLabel, GUILayout.MaxWidth(CellWidth));
+                }
+                else
+                {
+                    var isPreviewButtonClicked = GUILayout.Button(preview.Texture,
+                        GUILayout.Width(ThumbnailWidth), GUILayout.Height(ThumbnailHeight));
+
+                    if (isPreviewButtonClicked)
+                    {
+                        clickedModel = preview;
+                    }
+
+                    GUILayout.Space(CellSpacing);
+                    GUILayout.Label(preview.Title, EditorStyles.boldLabel, GUILayout.MaxWidth(CellWidth));
                 }
 
                 GUILayout.EndVertical();
@@ -222,7 +234,7 @@ namespace Svrf.Unity.Editor
 
             if (isSearchClicked)
             {
-                _textureLoader.SearchModels(_searchString);
+                Refresh();
             }
         }
 
@@ -253,7 +265,7 @@ namespace Svrf.Unity.Editor
 
             if (isRefreshClicked)
             {
-                _textureLoader.SearchModels(_searchString);
+                Refresh();
             }
         }
 
