@@ -15,7 +15,7 @@ namespace Svrf.Unity.Utilities
         private const string SdkVersion = "1.1.0";
         private const string SegmentWriteKey = "VNcUInbeQ5UX2uM2hcXONRfwQqivs7CT";
 
-        private const string FaceFilterEventName = "Face Filter Node Requseted";
+        private const string FaceFilterEventName = "Face Filter Node Requested";
         private const string Model3DEventName = "3D Node Requested";
 
         private static string _appId;
