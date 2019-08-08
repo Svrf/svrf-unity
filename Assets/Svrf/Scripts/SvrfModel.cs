@@ -1,6 +1,5 @@
 ﻿using Svrf.Models.Media;
 using System.Threading.Tasks;
-using Svrf.Unity.Coroutines;
 using Svrf.Unity.Models;
 using Svrf.Unity.Utilities;
 using UnityEngine;
@@ -14,7 +13,8 @@ namespace Svrf.Unity
         public bool WithOccluder = DefaultOptions.WithOccluder;
         public Shader ShaderOverride = DefaultOptions.ShaderOverride;
 
-        private static SvrfApi _svrf;
+        internal static SvrfApi SvrfApi;
+
         private static readonly SvrfModelOptions DefaultOptions = new SvrfModelOptions
         {
             ShaderOverride = null,
@@ -29,7 +29,7 @@ namespace Svrf.Unity
         {
             CreateSvrfInstance();
 
-            var model = (await _svrf.Media.GetByIdAsync(SvrfModelId)).Media;
+            var model = (await SvrfApi.Media.GetByIdAsync(SvrfModelId)).Media;
             var options = new SvrfModelOptions
             {
                 ShaderOverride = ShaderOverride,
@@ -59,9 +59,9 @@ namespace Svrf.Unity
 
         private static void CreateSvrfInstance()
         {
-            if (_svrf == null)
+            if (SvrfApi == null)
             {
-                _svrf = new SvrfApi();
+                SvrfApi = new SvrfApi();
             }
         }
     }

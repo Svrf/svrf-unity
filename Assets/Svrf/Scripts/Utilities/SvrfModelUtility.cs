@@ -5,6 +5,10 @@ using Svrf.Unity.Models;
 using UnityEngine;
 using UnityGLTF;
 
+// Analytics call is performed in a separate thread and we don't wait it.
+// Therefore the warning about not awaiting for a task is disabled.
+#pragma warning disable CS4014
+
 namespace Svrf.Unity.Utilities
 {
     internal static class SvrfModelUtility
@@ -18,6 +22,11 @@ namespace Svrf.Unity.Utilities
             gltfComponent.GLTFUri = model.GetMainGltfFile();
 
             SetGltfComponentField(gltfComponent, "shaderOverride", options.ShaderOverride);
+
+            if (!Application.isEditor)
+            {
+                Task.Run(() => SegmentTracking.TrackModelRequest(model));
+            }
 
             await gltfComponent.Load();
 
