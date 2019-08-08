@@ -19,7 +19,7 @@ namespace Svrf.Unity.Utilities
 
             // Do not load the model automatically: let us call .Load() method manually and await it.
             SetGltfComponentField(gltfComponent, "loadOnStart", false);
-            gltfComponent.GLTFUri = model.GetMainGltfFile();
+            gltfComponent.GLTFUri = model.Files.GltfMain;
 
             SetGltfComponentField(gltfComponent, "shaderOverride", options.ShaderOverride);
 
