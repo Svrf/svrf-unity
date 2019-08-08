@@ -12,6 +12,7 @@ namespace Svrf.Unity.Utilities
 {
     internal static class SegmentTracking
     {
+        private const string LibraryName = "Unity";
         private const string SdkVersion = "1.1.0";
         private const string SegmentWriteKey = "VNcUInbeQ5UX2uM2hcXONRfwQqivs7CT";
 
@@ -36,6 +37,7 @@ namespace Svrf.Unity.Utilities
             {
                 {"media_id", model.Id},
                 {"sdk_version", SdkVersion},
+                {"svrf_library", LibraryName}
             };
 
             var trackName = model.Metadata.IsFaceFilter ?? false
