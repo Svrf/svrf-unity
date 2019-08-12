@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Segment;
@@ -26,11 +27,11 @@ namespace Svrf.Unity.Utilities
             Analytics.Initialize(SegmentWriteKey);
         }
 
-        internal static void TrackModelRequest(MediaModel model)
+        internal static async Task TrackModelRequest(MediaModel model)
         {
             if (string.IsNullOrEmpty(_appId))
             {
-                GetAppId();
+                await GetAppId();
             }
 
             var properties = new Properties
@@ -47,9 +48,9 @@ namespace Svrf.Unity.Utilities
             Analytics.Client.Track(_appId, trackName, properties);
         }
 
-        private static void GetAppId()
+        private static async Task GetAppId()
         {
-            var token = GetAppToken(SvrfModel.SvrfApi.Media);
+            var token = await GetAppToken(SvrfModel.SvrfApi);
             token = FormatToken(token);
             
             var convertedFromBase64 = Convert.FromBase64String(token);
@@ -59,22 +60,34 @@ namespace Svrf.Unity.Utilities
             _appId = deserializedToken["appId"].ToString();
         }
 
-        private static string GetAppToken(MediaApi mediaApi)
+        private static async Task<string> GetAppToken(SvrfApi api)
         {
             var httpClient = typeof(MediaApi)
                 .GetField("_httpClient", BindingFlags.NonPublic | BindingFlags.Instance)?
-                .GetValue(mediaApi);
+                .GetValue(api.Media);
+
+            var authApi = typeof(SvrfClient)
+                .GetProperty("Auth", BindingFlags.NonPublic | BindingFlags.Instance)?
+                .GetValue(api);
+
+            var authTask = authApi?
+                .GetType()
+                .GetMethod("AuthenticateAsync", BindingFlags.Public | BindingFlags.Instance)?
+                .Invoke(authApi, null);
+
+            if (authTask != null) await (Task)authTask;
 
             var tokenService = httpClient?
                 .GetType()
                 .GetField("_tokenService", BindingFlags.NonPublic | BindingFlags.Instance)?
                 .GetValue(httpClient);
 
-            var getAppTokenMethodInfoInfo = tokenService?
+            var token = tokenService?
                 .GetType()
-                .GetMethod("GetAppToken", BindingFlags.Public | BindingFlags.Instance);
+                .GetMethod("GetAppToken", BindingFlags.Public | BindingFlags.Instance)?
+                .Invoke(tokenService, null)
+                .ToString();
 
-            var token = getAppTokenMethodInfoInfo?.Invoke(tokenService, null).ToString();
             return token;
         }
 

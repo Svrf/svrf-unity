@@ -13,7 +13,8 @@ namespace Svrf.Unity
         public bool WithOccluder = DefaultOptions.WithOccluder;
         public Shader ShaderOverride = DefaultOptions.ShaderOverride;
 
-        internal static SvrfApi SvrfApi;
+        private static SvrfApi _svrfApi;
+        internal static SvrfApi SvrfApi => _svrfApi ?? (_svrfApi = new SvrfApi());
 
         private static readonly SvrfModelOptions DefaultOptions = new SvrfModelOptions
         {
@@ -27,8 +28,6 @@ namespace Svrf.Unity
 
         public async void Start()
         {
-            CreateSvrfInstance();
-
             var model = (await SvrfApi.Media.GetByIdAsync(SvrfModelId)).Media;
             var options = new SvrfModelOptions
             {
@@ -55,14 +54,6 @@ namespace Svrf.Unity
             await SvrfModelUtility.AddSvrfModel(gameObject, model, options);
 
             return gameObject;
-        }
-
-        private static void CreateSvrfInstance()
-        {
-            if (SvrfApi == null)
-            {
-                SvrfApi = new SvrfApi();
-            }
         }
     }
 }
