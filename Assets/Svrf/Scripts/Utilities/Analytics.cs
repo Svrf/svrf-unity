@@ -14,7 +14,7 @@ namespace Svrf.Unity.Utilities
     internal static class SegmentTracking
     {
         private const string LibraryName = "Unity";
-        private const string SdkVersion = "1.1.0";
+        private const string SdkVersion = "1.1.1";
         private const string SegmentWriteKey = "VNcUInbeQ5UX2uM2hcXONRfwQqivs7CT";
 
         private const string FaceFilterEventName = "Face Filter Node Requested";
