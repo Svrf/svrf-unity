@@ -31,28 +31,19 @@ namespace Svrf.Unity.Utilities
             await gltfComponent.Load();
 
             var gltfRoot = gameObject.transform.GetChild(0);
-            var occluder = FindDescendant(gltfRoot, "Occluder");
+
+            var integratedOccluder = FindDescendant(gltfRoot, "Occluder");
+            integratedOccluder?.gameObject.SetActive(false); // TODO: Remove it when we remove occluder from all models
+
+            if (options.WithOccluder)
+            {
+                var occluder = Object.Instantiate(Resources.Load<GameObject>("Occluder"));
+                occluder.transform.parent = gltfRoot;
+            }
 
             // GLTF models are right-handed, but the Unity coordinates are left-handed,
             // so rotating the model around Y axis.
             gltfRoot.transform.Rotate(Vector3.up, 180);
-
-            if (occluder == null)
-            {
-                return;
-            }
-
-            if (options.WithOccluder)
-            {
-                var meshRenderer = occluder.transform.Find("Primitive").GetComponent<SkinnedMeshRenderer>();
-                // If we need to handle occlusion, apply our custom shader to handle it.
-                meshRenderer.sharedMaterials[0].shader = Shader.Find("Svrf/Occluder");
-            }
-            else
-            {
-                // If we don't need to handle occlusion, hide the occluder.
-                occluder.gameObject.SetActive(false);
-            }
         }
 
         private static void SetGltfComponentField(GLTFComponent component, string name, object value)
